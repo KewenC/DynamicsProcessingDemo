@@ -30,18 +30,20 @@ public class MainActivity extends AppCompatActivity {
     private SeekBar seekBar3;
     private SeekBar seekBar4;
     private SeekBar seekBar5;
+    private static final int CHANNEL_1 = 1;
 
+    private static final int[] bandVal = {31, 62,125, 250,  500, 1000, 2000, 4000, 8000, 16000};//网易云
+//    private static final int[] bandVal = {100, 200, 400, 600, 1000, 3000, 6000, 12000, 14000, 16000};
+//    private static final int[] bandVal = {34, 62, 125, 250, 500, 1000, 2000, 4000, 8000, 16000};//Poweramp
+//    private static final int[] bandVal = {60,230,910,3600,14000, 20000};
 
-    private static final int[] bandVal = {100, 200, 400, 600, 1000, 3000, 6000, 12000, 14000, 16000};
-//    private static final int[] bandVal = {16000, 14000, 12000, 6000, 3000, 1000, 600, 400, 200, 100};
-//    private static final int[] bandVal = {34, 62, 125, 250, 500, 1000, 2000, 4000, 8000, 16000};
-//    private static final int[] bandVal = {16000, 8000, 4000, 2000, 1000, 500, 250, 125, 62, 34};
-//    private static final int[] bandVal = {60,230,910,3600,14000};
 private static final int maxBandCount = bandVal.length;
+//private static final int maxBandCount = 10;
 private static final int maxSeekBar = 30;
 private static final int maxHalfSeekBar = maxSeekBar/2;
     private LinearLayout eqLayout;
     private ToggleButton btn;
+    private DynamicsProcessing.Eq eq2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +51,8 @@ private static final int maxHalfSeekBar = maxSeekBar/2;
         setContentView(R.layout.activity_main);
         btn = findViewById(R.id.btn);
         btn.setChecked(true);
-        btn.setTextOff("OFF");
-        btn.setTextOn("ON");
+        btn.setTextOff("EQ OFF");
+        btn.setTextOn("EQ ON");
         btn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -63,43 +65,41 @@ private static final int maxHalfSeekBar = maxSeekBar/2;
         mMediaPlayer = MediaPlayer.create(this, R.raw.aa);
         ID = mMediaPlayer.getAudioSessionId();
 
-//        seekBar = findViewById(R.id.seekBar);
-//        seekBar2 = findViewById(R.id.seekBar2);
-//        seekBar3 = findViewById(R.id.seekBar3);
-//        seekBar4 = findViewById(R.id.seekBar4);
-//        seekBar5 = findViewById(R.id.seekBar5);
-//        seekBar.setMax(3000);
-//        seekBar2.setMax(3000);
-//        seekBar3.setMax(3000);
-//        seekBar4.setMax(3000);
-//        seekBar5.setMax(3000);
-//        seekBar.setProgress(1500);
-//        seekBar2.setProgress(1500);
-//        seekBar3.setProgress(1500);
-//        seekBar4.setProgress(1500);
-//        seekBar5.setProgress(1500);
+        seekBar = findViewById(R.id.seekBar);
+        seekBar2 = findViewById(R.id.seekBar2);
+        seekBar3 = findViewById(R.id.seekBar3);
+        seekBar4 = findViewById(R.id.seekBar4);
+        seekBar5 = findViewById(R.id.seekBar5);
+        seekBar.setMax(3000);
+        seekBar2.setMax(3000);
+        seekBar3.setMax(3000);
+        seekBar4.setMax(3000);
+        seekBar5.setMax(3000);
+        seekBar.setProgress(1500);
+        seekBar2.setProgress(1500);
+        seekBar3.setProgress(1500);
+        seekBar4.setProgress(1500);
+        seekBar5.setProgress(1500);
 
-
-
-//        mEqualizer = new Equalizer(0, ID);
-//        mEqualizer.setEnabled(true);
-//        mBassBoost = new BassBoost(0, ID);
-//        mBassBoost.setEnabled(true);
-//        mVirtualizer = new Virtualizer(0, ID);
-//        mVirtualizer.setEnabled(true);
+        mEqualizer = new Equalizer(0, ID);
+        mEqualizer.setEnabled(true);
+        mBassBoost = new BassBoost(0, ID);
+        mBassBoost.setEnabled(true);
+        mVirtualizer = new Virtualizer(0, ID);
+        mVirtualizer.setEnabled(true);
 
 
         if (android.os.Build.VERSION.SDK_INT >= 28) {
             dp = new DynamicsProcessing(ID);
-            eq = new DynamicsProcessing.Eq(true, true, maxBandCount);
-//            dp.setPreEqAllChannelsTo(eq);
             dp.setEnabled(true);
-            for (int i=0;i<maxBandCount;i++){
-                DynamicsProcessing.EqBand eqBand= new DynamicsProcessing.EqBand(true,bandVal[i],0);
-                eq.setBand(i, eqBand);
-                dp.setPreEqAllChannelsTo(eq);
-                dp.setPostEqAllChannelsTo(eq);
-
+            eq = new DynamicsProcessing.Eq(true, true, maxBandCount/2);
+            eq2 = new DynamicsProcessing.Eq(true, true, maxBandCount/2);
+            for (int i=0; i<maxBandCount; i++){
+                if (i < maxBandCount / 2){
+                    eq.getBand(i).setCutoffFrequency(bandVal[i]);
+                } else {
+                    eq2.getBand(i - maxBandCount/2).setCutoffFrequency(bandVal[i]);
+                }
                 SeekBar seekBar = new SeekBar(this);
                 seekBar.setMax(maxSeekBar);
                 seekBar.setProgress(maxHalfSeekBar);
@@ -108,12 +108,15 @@ private static final int maxHalfSeekBar = maxSeekBar/2;
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         if (Build.VERSION.SDK_INT >= 28) {
-                            Log.e("TAGF","A__"+(Integer) seekBar.getTag()+"_"+((short)(progress-maxHalfSeekBar)));
-//                            eq.getBand((Integer) seekBar.getTag()).setGain((short)(progress-1500));
-                            eq.getBand((Integer) seekBar.getTag()).setGain((short)(progress-maxHalfSeekBar));
-                            dp.setPreEqBandAllChannelsTo((Integer) seekBar.getTag(),eq.getBand((Integer) seekBar.getTag()));
-                            dp.setPostEqBandAllChannelsTo((Integer) seekBar.getTag(),eq.getBand((Integer) seekBar.getTag()));
-                            ((TextView)((LinearLayout)eqLayout.getChildAt((Integer) seekBar.getTag())).getChildAt(0)).setText(bandVal[(Integer) seekBar.getTag()]+"Hz: "+"DB:"+(short)(progress-maxHalfSeekBar));
+                            if ((Integer) seekBar.getTag() < maxBandCount / 2){
+                                eq.getBand((Integer) seekBar.getTag()).setGain((short)(progress-maxHalfSeekBar));
+                                dp.setPreEqBandAllChannelsTo((Integer) seekBar.getTag(),eq.getBand((Integer) seekBar.getTag()));
+                                ((TextView)((LinearLayout)eqLayout.getChildAt((Integer) seekBar.getTag())).getChildAt(0)).setText((int)eq.getBand((Integer) seekBar.getTag()).getCutoffFrequency()+"Hz: "+"DB:"+(int)eq.getBand((Integer) seekBar.getTag()).getGain());
+                            } else {
+                                eq2.getBand((Integer) seekBar.getTag() - maxBandCount/2).setGain((short)(progress-maxHalfSeekBar));
+                                dp.setPreEqBandByChannelIndex(CHANNEL_1, (Integer) seekBar.getTag() - maxBandCount/2, eq2.getBand((Integer) seekBar.getTag() - maxBandCount/2));
+                                ((TextView)((LinearLayout)eqLayout.getChildAt((Integer) seekBar.getTag())).getChildAt(0)).setText((int)eq2.getBand((Integer) seekBar.getTag() - maxBandCount/2).getCutoffFrequency()+"Hz: "+"DB:"+(int)eq2.getBand((Integer) seekBar.getTag() - maxBandCount/2).getGain());
+                            }
                         }
                     }
 
@@ -130,96 +133,155 @@ private static final int maxHalfSeekBar = maxSeekBar/2;
                 LinearLayout linearLayout = new LinearLayout(this);
                 linearLayout.setOrientation(LinearLayout.VERTICAL);
                 TextView textView = new TextView(this);
-                textView.setText(bandVal[i]+"Hz: "+"DB:"+0);
+                if (i < maxBandCount / 2){
+                    textView.setText((int)eq.getBand(i).getCutoffFrequency()+"Hz: "+"DB:"+0);
+                } else {
+                    textView.setText((int)eq2.getBand(i - maxBandCount/2).getCutoffFrequency()+"Hz: "+"DB:"+0);
+                }
                 linearLayout.addView(textView);
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 params.topMargin = 50;
                 linearLayout.addView(seekBar,params);
                 eqLayout.addView(linearLayout);
             }
+            dp.setPreEqAllChannelsTo(eq);
+            dp.setPreEqByChannelIndex(CHANNEL_1,eq2);
+
+
+
+//            for (int i=0;i<maxBandCount/2;i++){
+//                eq2.getBand(i).setCutoffFrequency(bandVal[i+5]);
+////                DynamicsProcessing.EqBand eqBand= new DynamicsProcessing.EqBand(true,bandVal[i],0);
+////                eq.setBand(i, eqBand);
+//
+////                dp.setPreEqAllChannelsTo(eq);
+////                dp.setPostEqAllChannelsTo(eq);
+////                dp.setPostEqByChannelIndex(1,eq2);
+//                dp.setPreEqByChannelIndex(1,eq2);
+//
+//                SeekBar seekBar = new SeekBar(this);
+//                seekBar.setMax(maxSeekBar);
+//                seekBar.setProgress(maxHalfSeekBar);
+//                seekBar.setTag(i);
+//                seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//                    @Override
+//                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                        if (Build.VERSION.SDK_INT >= 28) {
+//                            eq2.getBand((Integer) seekBar.getTag()).setGain((short)(progress-maxHalfSeekBar));
+////                            dp.setPreEqBandAllChannelsTo((Integer) seekBar.getTag(),eq.getBand((Integer) seekBar.getTag()));
+////                            dp.setPostEqBandAllChannelsTo((Integer) seekBar.getTag(),eq.getBand((Integer) seekBar.getTag()));
+////                            dp.setPostEqBandByChannelIndex(1,(Integer) seekBar.getTag(),eq2.getBand((Integer) seekBar.getTag()));
+//                            dp.setPreEqBandByChannelIndex(1,(Integer) seekBar.getTag(),eq2.getBand((Integer) seekBar.getTag()));
+//                            ((TextView)((LinearLayout)eqLayout.getChildAt((Integer) seekBar.getTag()+5)).getChildAt(0)).setText((int)eq2.getBand((Integer) seekBar.getTag()).getCutoffFrequency()+"Hz: "+"DB:"+(int)eq2.getBand((Integer) seekBar.getTag()).getGain());
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onStartTrackingTouch(SeekBar seekBar) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onStopTrackingTouch(SeekBar seekBar) {
+//
+//                    }
+//                });
+//                LinearLayout linearLayout = new LinearLayout(this);
+//                linearLayout.setOrientation(LinearLayout.VERTICAL);
+//                TextView textView = new TextView(this);
+//
+////                textView.setText(bandVal[i]+"Hz: "+"DB:"+0);
+//                textView.setText((int)eq2.getBand(i).getCutoffFrequency()+"Hz: "+"DB:"+0);
+//
+//                linearLayout.addView(textView);
+//                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//                params.topMargin = 50;
+//                linearLayout.addView(seekBar,params);
+//                eqLayout.addView(linearLayout);
+//            }
         }
 
         mMediaPlayer.start();
-//        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//                mEqualizer.setBandLevel((short) 0, (short)(progress-1500));
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//        });
-//        seekBar2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//                mEqualizer.setBandLevel((short) 1, (short)(progress-1500));
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//        });
-//        seekBar3.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//                mEqualizer.setBandLevel((short) 2, (short)(progress-1500));
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//        });
-//        seekBar4.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//                mEqualizer.setBandLevel((short) 3, (short)(progress-1500));
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//        });
-//        seekBar5.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//                mEqualizer.setBandLevel((short) 4, (short)(progress-1500));
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//        });
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mEqualizer.setBandLevel((short) 0, (short)(progress-1500));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        seekBar2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mEqualizer.setBandLevel((short) 1, (short)(progress-1500));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        seekBar3.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mEqualizer.setBandLevel((short) 2, (short)(progress-1500));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        seekBar4.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mEqualizer.setBandLevel((short) 3, (short)(progress-1500));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        seekBar5.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mEqualizer.setBandLevel((short) 4, (short)(progress-1500));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
     }
 
     @Override

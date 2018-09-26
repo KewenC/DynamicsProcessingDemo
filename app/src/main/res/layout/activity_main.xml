@@ -7,41 +7,61 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
+        <TextView
+            android:padding="6dp"
+            android:background="@color/colorPrimary"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Android 9.0以下的EQ"
+            android:textColor="#FFFFFF"/>
+        <SeekBar
+        android:padding="16dp"
+        android:id="@+id/seekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+        <SeekBar
+        android:padding="16dp"
+        android:id="@+id/seekBar2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+        <SeekBar
+        android:padding="16dp"
+        android:id="@+id/seekBar3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+        <SeekBar
+        android:padding="16dp"
+        android:id="@+id/seekBar4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+        <SeekBar
+        android:padding="16dp"
+        android:id="@+id/seekBar5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+        <TextView
+            android:padding="6dp"
+            android:background="@color/colorPrimary"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Android 9.0以上的EQ"
+            android:textColor="#FFFFFF"/>
         <ToggleButton
             android:id="@+id/btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"/>
-
-        <!--<SeekBar-->
-        <!--android:padding="16dp"-->
-        <!--android:id="@+id/seekBar"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content" />-->
-
-        <!--<SeekBar-->
-        <!--android:padding="16dp"-->
-        <!--android:id="@+id/seekBar2"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content" />-->
-
-        <!--<SeekBar-->
-        <!--android:padding="16dp"-->
-        <!--android:id="@+id/seekBar3"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content" />-->
-
-        <!--<SeekBar-->
-        <!--android:padding="16dp"-->
-        <!--android:id="@+id/seekBar4"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content" />-->
-
-        <!--<SeekBar-->
-        <!--android:padding="16dp"-->
-        <!--android:id="@+id/seekBar5"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content" />-->
+            android:layout_marginBottom="16dp"
+            android:background="@color/colorPrimary"
+            android:textColor="#FFFFFF"
+            android:textOn="EQ ON"
+            android:textOff="EQ OFF"/>
         <LinearLayout
             android:id="@+id/eqLayout"
             android:orientation="vertical"
