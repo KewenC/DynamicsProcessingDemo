@@ -1,5 +1,6 @@
 package com.kewenc.dynamicsprocessingdemo;
 
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.audiofx.BassBoost;
 import android.media.audiofx.DynamicsProcessing;
@@ -23,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private Virtualizer mVirtualizer;
     private DynamicsProcessing dp;
     private DynamicsProcessing.Eq eq;
+    private DynamicsProcessing.Eq eq2;
     private int ID;
     private MediaPlayer mMediaPlayer;
     private SeekBar seekBar;
@@ -30,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private SeekBar seekBar3;
     private SeekBar seekBar4;
     private SeekBar seekBar5;
-    private static final int CHANNEL_1 = 1;
+    private static final int CHANNEL_1 = 0;
 
     private static final int[] bandVal = {31, 62,125, 250,  500, 1000, 2000, 4000, 8000, 16000};//网易云
 //    private static final int[] bandVal = {100, 200, 400, 600, 1000, 3000, 6000, 12000, 14000, 16000};
@@ -43,12 +45,13 @@ private static final int maxSeekBar = 30;
 private static final int maxHalfSeekBar = maxSeekBar/2;
     private LinearLayout eqLayout;
     private ToggleButton btn;
-    private DynamicsProcessing.Eq eq2;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+//        startService(new Intent(MainActivity.this,AIDLService.class));
         btn = findViewById(R.id.btn);
         btn.setChecked(true);
         btn.setTextOff("EQ OFF");
@@ -64,6 +67,7 @@ private static final int maxHalfSeekBar = maxSeekBar/2;
 
         mMediaPlayer = MediaPlayer.create(this, R.raw.aa);
         ID = mMediaPlayer.getAudioSessionId();
+//        ID = 0;
 
         seekBar = findViewById(R.id.seekBar);
         seekBar2 = findViewById(R.id.seekBar2);
@@ -81,16 +85,16 @@ private static final int maxHalfSeekBar = maxSeekBar/2;
         seekBar4.setProgress(1500);
         seekBar5.setProgress(1500);
 
-        mEqualizer = new Equalizer(0, ID);
-        mEqualizer.setEnabled(true);
-        mBassBoost = new BassBoost(0, ID);
-        mBassBoost.setEnabled(true);
-        mVirtualizer = new Virtualizer(0, ID);
-        mVirtualizer.setEnabled(true);
+//        mEqualizer = new Equalizer(0, ID);
+//        mEqualizer.setEnabled(true);
+//        mBassBoost = new BassBoost(0, ID);
+//        mBassBoost.setEnabled(true);
+//        mVirtualizer = new Virtualizer(0, ID);
+//        mVirtualizer.setEnabled(true);
 
 
         if (android.os.Build.VERSION.SDK_INT >= 28) {
-            dp = new DynamicsProcessing(ID);
+             dp = new DynamicsProcessing(ID);
             dp.setEnabled(true);
             eq = new DynamicsProcessing.Eq(true, true, maxBandCount/2);
             eq2 = new DynamicsProcessing.Eq(true, true, maxBandCount/2);
@@ -111,10 +115,12 @@ private static final int maxHalfSeekBar = maxSeekBar/2;
                             if ((Integer) seekBar.getTag() < maxBandCount / 2){
                                 eq.getBand((Integer) seekBar.getTag()).setGain((short)(progress-maxHalfSeekBar));
                                 dp.setPreEqBandAllChannelsTo((Integer) seekBar.getTag(),eq.getBand((Integer) seekBar.getTag()));
+//                                dp.setPostEqBandAllChannelsTo((Integer) seekBar.getTag(),eq.getBand((Integer) seekBar.getTag()));
                                 ((TextView)((LinearLayout)eqLayout.getChildAt((Integer) seekBar.getTag())).getChildAt(0)).setText((int)eq.getBand((Integer) seekBar.getTag()).getCutoffFrequency()+"Hz: "+"DB:"+(int)eq.getBand((Integer) seekBar.getTag()).getGain());
                             } else {
                                 eq2.getBand((Integer) seekBar.getTag() - maxBandCount/2).setGain((short)(progress-maxHalfSeekBar));
                                 dp.setPreEqBandByChannelIndex(CHANNEL_1, (Integer) seekBar.getTag() - maxBandCount/2, eq2.getBand((Integer) seekBar.getTag() - maxBandCount/2));
+//                                dp.setPostEqBandByChannelIndex(CHANNEL_1, (Integer) seekBar.getTag() - maxBandCount/2, eq2.getBand((Integer) seekBar.getTag() - maxBandCount/2));
                                 ((TextView)((LinearLayout)eqLayout.getChildAt((Integer) seekBar.getTag())).getChildAt(0)).setText((int)eq2.getBand((Integer) seekBar.getTag() - maxBandCount/2).getCutoffFrequency()+"Hz: "+"DB:"+(int)eq2.getBand((Integer) seekBar.getTag() - maxBandCount/2).getGain());
                             }
                         }
@@ -145,7 +151,9 @@ private static final int maxHalfSeekBar = maxSeekBar/2;
                 eqLayout.addView(linearLayout);
             }
             dp.setPreEqAllChannelsTo(eq);
+//            dp.setPostEqAllChannelsTo(eq);
             dp.setPreEqByChannelIndex(CHANNEL_1,eq2);
+//            dp.setPostEqByChannelIndex(CHANNEL_1,eq2);
 
 
 
@@ -286,7 +294,8 @@ private static final int maxHalfSeekBar = maxSeekBar/2;
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();        if (mMediaPlayer != null){
+        super.onDestroy();
+        if (mMediaPlayer != null){
             mMediaPlayer.pause();
             mMediaPlayer.release();
         }
