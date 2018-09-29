@@ -214,6 +214,8 @@ public class Main2Activity extends AppCompatActivity {
             mMediaPlayer.pause();
             mMediaPlayer.release();
         }
+//
+
     }
 
     @Override
