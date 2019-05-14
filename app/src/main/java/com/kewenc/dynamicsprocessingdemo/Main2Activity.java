@@ -6,6 +6,7 @@ import android.content.ServiceConnection;
 import android.media.MediaPlayer;
 import android.media.audiofx.BassBoost;
 import android.media.audiofx.Equalizer;
+import android.media.audiofx.PresetReverb;
 import android.media.audiofx.Virtualizer;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,15 +14,15 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-
 import com.kewenc.dynamicsprocessingdemo.service.AIDLInterface;
-
 import static com.kewenc.dynamicsprocessingdemo.AIDLService.ID;
 import static com.kewenc.dynamicsprocessingdemo.AIDLService.maxBandCount;
 import static com.kewenc.dynamicsprocessingdemo.AIDLService.maxHalfSeekBar;
@@ -33,6 +34,7 @@ public class Main2Activity extends AppCompatActivity {
     private SeekBar seekBar3;
     private SeekBar seekBar4;
     private SeekBar seekBar5;
+    private SeekBar seekBar6;
 
 
     private static AIDLInterface aidlInterface;
@@ -63,6 +65,8 @@ public class Main2Activity extends AppCompatActivity {
     private Virtualizer mVirtualizer;
     private MediaPlayer mMediaPlayer;
     private boolean isInit = true;
+    private SeekBar sbPresetReverb;
+    private PresetReverb reverb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +80,16 @@ public class Main2Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         eqLayout = findViewById(R.id.eqLayout);
-        ToggleButton btn = findViewById(R.id.btn);
+        final CheckBox vb = findViewById(R.id.cb);
+        vb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mBassBoost.setEnabled(vb.isChecked());
+                vb.setText("Status="+(vb.isChecked()?"On":"OFF")+"\n__Enabled="+mBassBoost.getEnabled()+"__Strength="+mBassBoost.getRoundedStrength()+"__Supported="+mBassBoost.getStrengthSupported());
+                Log.e("TAGF","mBassBoost = "+mBassBoost.getEnabled());
+            }
+        });
+        final ToggleButton btn = findViewById(R.id.btn);
         btn.setChecked(true);
         btn.setTextOff("EQ OFF");
         btn.setTextOn("EQ ON");
@@ -90,6 +103,7 @@ public class Main2Activity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
+//                mBassBoost.setEnabled(!btn.isChecked());
             }
         });
         bindService(intent,serviceConnection,BIND_AUTO_CREATE);
@@ -99,22 +113,39 @@ public class Main2Activity extends AppCompatActivity {
         seekBar3 = findViewById(R.id.seekBar3);
         seekBar4 = findViewById(R.id.seekBar4);
         seekBar5 = findViewById(R.id.seekBar5);
+        seekBar6 = findViewById(R.id.seekBar6);
         seekBar.setMax(3000);
         seekBar2.setMax(3000);
         seekBar3.setMax(3000);
         seekBar4.setMax(3000);
         seekBar5.setMax(3000);
+
+        seekBar6.setMax(1000);
+
         seekBar.setProgress(1500);
         seekBar2.setProgress(1500);
         seekBar3.setProgress(1500);
         seekBar4.setProgress(1500);
         seekBar5.setProgress(1500);
+
+        seekBar6.setProgress(0);
+
         mEqualizer = new Equalizer(0, ID);
         mEqualizer.setEnabled(true);
+
         mBassBoost = new BassBoost(0, ID);
         mBassBoost.setEnabled(true);
+        mBassBoost.setEnabled(false);
+        mBassBoost.setEnabled(true);
+
         mVirtualizer = new Virtualizer(0, ID);
         mVirtualizer.setEnabled(true);
+
+        reverb = new PresetReverb(0,ID);
+        reverb.setEnabled(true);
+        reverb.setPreset((short)0);
+        mMediaPlayer.attachAuxEffect(reverb.getId());
+        mMediaPlayer.setAuxEffectSendLevel((float) 1.0);
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -191,6 +222,58 @@ public class Main2Activity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        seekBar6.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mBassBoost.setStrength((short) progress);
+                if (mBassBoost.getRoundedStrength() == 0){
+                    if (mBassBoost.getEnabled())
+                        mBassBoost.setEnabled(false);
+                } else {
+                    if (!mBassBoost.getEnabled()){
+                        mBassBoost.setEnabled(true);
+                    }
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        sbPresetReverb = findViewById(R.id.sbPresetReverb);
+        sbPresetReverb.setMax(6);
+        sbPresetReverb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                Log.e("TAGF","PresetReverb="+progress);
+                Log.e("TAGF","PresetReverb="+mEqualizer.getPresetName((short)progress));
+//                try {
+//                    aidlInterface.setPresetReverR(progress);
+//                } catch (RemoteException e) {
+//                    e.printStackTrace();
+//                }
+                reverb.setPreset((short)progress);
+                mMediaPlayer.attachAuxEffect(reverb.getId());
+                mMediaPlayer.setAuxEffectSendLevel( 0.2f);
             }
 
             @Override

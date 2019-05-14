@@ -10,4 +10,6 @@ interface AIDLInterface{
     int getEq2Gain(int band);
     void initDb(int id);
     void setEnable(boolean b);
+
+    void setPresetReverR(int b);
 }

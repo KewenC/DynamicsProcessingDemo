@@ -45,6 +45,17 @@
         android:id="@+id/seekBar5"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+        <CheckBox
+            android:id="@+id/cb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="BassBoost status is OFF"
+            android:checked="false"/>
+        <SeekBar
+            android:padding="16dp"
+            android:id="@+id/seekBar6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
         <TextView
             android:padding="6dp"
             android:background="@color/colorPrimary"
@@ -61,7 +72,12 @@
             android:background="@color/colorPrimary"
             android:textColor="#FFFFFF"
             android:textOn="EQ ON"
-            android:textOff="EQ OFF"/>
+            android:textOff="EQ OFF" />
+        <SeekBar
+            android:padding="16dp"
+            android:id="@+id/sbPresetReverb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
         <LinearLayout
             android:id="@+id/eqLayout"
             android:orientation="vertical"

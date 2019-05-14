@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.audiofx.DynamicsProcessing;
+import android.media.audiofx.PresetReverb;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
@@ -13,6 +14,7 @@ import android.util.Log;
 import com.kewenc.dynamicsprocessingdemo.service.AIDLInterface;
 
 public class AIDLService extends Service {
+
 //    private int[][] new_values = {
 //            {0,  0,  0,  0,  0,  0, -6, -6, -6, -7},// 古典 Classical
 //            {8,  6,  2,  0,  0, -4, -6, -6,  0,  0},// 舞曲 Dance
@@ -29,32 +31,54 @@ public class AIDLService extends Service {
 //            {2,  0, -2, -4, -2,  2,  5,  7,  8, 9},// 轻柔 Gentle
 //            {6,  6,  0,  0,  0,  0,  0,  0,  6,  6},// 聚会 Gather
 //    };
-    public static final int[][] new_values = {
-            {0,  0,  0,  0,  0,  0, -6, -6, -6, -7},// 古典 Classical
-            {8,  6,  2,  0,  0, -4, -6, -6,  0,  0},// 舞曲 Dance
-            {0,  0,  0,  0,  0,  0,  0,  0,  0,  0},// 平直 Flat
-//			    {-2,  6,  9,  0,  9,  8,  7,  0,  0,  0},// 爵士 Jazz
-            {3,  3,  1,  2,  -1,  -1,  0,  1,  2,  4},// 爵士 Jazz
-//				{-2,  2,  5,  7,  5, -2, -4, -4, -4, -4},// 流行 Pop
-            {-1,  0,  0,  1,  4, 3, 1, 0, -1, 1},// 流行 Pop
-            {5,  2, -3, -6, -3,  3,  6,  8,  8,  8},// 摇滚 Rock
-            {-4,  0,  5,  6,  7,  6,  3,  2,  1,  0},// 现场 On site
-            {0,  0,  2,  6,  6,  6,  2,  0,  0,  0},// 俱乐部 Club
-//			    {12, 11, 10,  4,  0, -4, -6, -8, -9, -9},// 低音 Bass
-            {6, 4, 6,  2,  0, 0, 0, 0, 0, 0},// 低音 Bass
-            {9,  9,  9,  5,  0,  4, 11, 11, 11, 11},// 高音 Treble
-//		    	{-4,  6,  6,  6, -4, -4, -4, -4, -4, -4},// 声乐 Vocal music
-            {-2,  5,  4,  -2, -2, -1, 2, 3, 1, 4},// 重金属
-            {10, 10,  5, -5, -3,  2,  8, 10, 11, 12},// 强劲 Strong
-            {2,  0, -2, -4, -2,  2,  5,  7,  8, 9},// 轻柔 Gentle
-            {2,  6, 4, 0, -2,  -1,  2,  2,  1, 3},// 蓝调
-            {0,  3, 0, 0, 1,  4,  5,  3,  0, 1},// 民谣
-            {6,  6,  0,  0,  0,  0,  0,  0,  6,  6},// 聚会 Gather
-    };
 
+//    public static final int[][] new_values = {
+//            {0,  0,  0,  0,  0,  0, -6, -6, -6, -7},// 古典 Classical
+//            {8,  6,  2,  0,  0, -4, -6, -6,  0,  0},// 舞曲 Dance
+//            {0,  0,  0,  0,  0,  0,  0,  0,  0,  0},// 平直 Flat
+////			    {-2,  6,  9,  0,  9,  8,  7,  0,  0,  0},// 爵士 Jazz
+//            {3,  3,  1,  2,  -1,  -1,  0,  1,  2,  4},// 爵士 Jazz
+////				{-2,  2,  5,  7,  5, -2, -4, -4, -4, -4},// 流行 Pop
+//            {-1,  0,  0,  1,  4, 3, 1, 0, -1, 1},// 流行 Pop
+//            {5,  2, -3, -6, -3,  3,  6,  8,  8,  8},// 摇滚 Rock
+//            {-4,  0,  5,  6,  7,  6,  3,  2,  1,  0},// 现场 On site
+//            {0,  0,  2,  6,  6,  6,  2,  0,  0,  0},// 俱乐部 Club
+////			    {12, 11, 10,  4,  0, -4, -6, -8, -9, -9},// 低音 Bass
+//            {6, 4, 6,  2,  0, 0, 0, 0, 0, 0},// 低音 Bass
+//            {9,  9,  9,  5,  0,  4, 11, 11, 11, 11},// 高音 Treble
+////		    	{-4,  6,  6,  6, -4, -4, -4, -4, -4, -4},// 声乐 Vocal music
+//            {-2,  5,  4,  -2, -2, -1, 2, 3, 1, 4},// 重金属
+//            {10, 10,  5, -5, -3,  2,  8, 10, 11, 12},// 强劲 Strong
+//            {2,  0, -2, -4, -2,  2,  5,  7,  8, 9},// 轻柔 Gentle
+//            {2,  6, 4, 0, -2,  -1,  2,  2,  1, 3},// 蓝调
+//            {0,  3, 0, 0, 1,  4,  5,  3,  0, 1},// 民谣
+//            {6,  6,  0,  0,  0,  0,  0,  0,  6,  6},// 聚会 Gather
+//    };
+public static final int[][] new_values = {
+        {0,  0,  0,  0,  0,  0, -6, -6, -6, -7},// 古典 Classical
+        {8,  6,  2,  0,  0, -4, -6, -6,  0,  0},// 舞曲 Dance
+        {0,  0,  0,  0,  0,  0,  0,  0,  0,  0},// 平直 Flat
+//			    {-2,  6,  9,  0,  9,  8,  7,  0,  0,  0},// 爵士 Jazz
+        {3,  3,  1,  2,  -1,  -1,  0,  1,  2,  4},// 爵士 Jazz
+//				{-2,  2,  5,  7,  5, -2, -4, -4, -4, -4},// 流行 Pop
+        {-1,  0,  0,  1,  4, 3, 1, 0, -1, 1},// 流行 Pop
+        {5,  2, -3, -6, -3,  3,  6,  8,  8,  8},// 摇滚 Rock
+        {-4,  0,  5,  6,  7,  6,  3,  2,  1,  0},// 现场 On site
+        {0,  0,  2,  6,  6,  6,  2,  0,  0,  0},// 俱乐部 Club
+//			    {12, 11, 10,  4,  0, -4, -6, -8, -9, -9},// 低音 Bass
+        {6, 4, 6,  2,  0, 0, 0, 0, 0, 0},// 低音 Bass
+        {9,  9,  9,  5,  0,  4, 11, 11, 11, 11},// 高音 Treble
+//		    	{-4,  6,  6,  6, -4, -4, -4, -4, -4, -4},// 声乐 Vocal music
+        {-2,  5,  4,  -2, -2, -1, 2, 3, 1, 4},// 重金属
+        {10, 10,  5, -5, -3,  2,  8, 10, 11, 12},// 强劲 Strong
+        {2,  0, -2, -4, -2,  2,  5,  7,  8, 9},// 轻柔 Gentle
+        {2,  6, 4, 0, -2,  -1,  2,  2,  1, 3},// 蓝调
+        {0,  3, 0, 0, 1,  4,  5,  3,  0, 1},// 民谣
+        {6,  6,  0,  0,  0,  0,  0,  0,  6,  6},// 聚会 Gather
+};
     public static int ID = 0;
     public static final int CHANNEL_1 = 0;
-    public static final int[] bandVal = {31, 62,125, 250,  500, 1000, 2000, 4000, 8000, 16000,31, 62,125, 250,  500, 1000, 2000, 4000, 8000, 16000};//网易云
+    public static final int[] bandVal = {31, 62,125, 250,  500, 1000, 2000, 4000, 8000, 16000};//网易云
 //    private static final int[] bandVal = {100, 200, 400, 600, 1000, 3000, 6000, 12000, 14000, 16000};
 //    private static final int[] bandVal = {34, 62, 125, 250, 500, 1000, 2000, 4000, 8000, 16000};//Poweramp
 //    private static final int[] bandVal = {60,230,910,3600,14000, 20000};
@@ -67,6 +91,7 @@ public class AIDLService extends Service {
     private DynamicsProcessing.Eq eq;
     private DynamicsProcessing.Eq eq2;
 //    private MediaPlayer mMediaPlayer;
+//    private PresetReverb reverb;
 
     public AIDLService() {
     }
@@ -203,6 +228,9 @@ Log.e("TAGF",(dp==null)+"_"+(eq==null));
                     dp.setPreEqByChannelIndex(CHANNEL_1,eq2);
 //            dp.setPostEqByChannelIndex(CHANNEL_1,eq2);
 //                }
+//                reverb = new PresetReverb(0, id);
+//                reverb.setEnabled(true);
+//                reverb.setPreset((short)0);
             }
         }
 
@@ -214,6 +242,11 @@ Log.e("TAGF",(dp==null)+"_"+(eq==null));
                 }
 //                dp.setEnabled(b);
             }
+        }
+
+        @Override
+        public void setPresetReverR(int b) throws RemoteException {
+//            reverb.setPreset((short)b);
         }
     };
 
